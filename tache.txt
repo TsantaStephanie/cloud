@@ -1,9 +1,0 @@
-Fandresena:-authentification avec (redirection par identifiant)
-Miahy:-utilisateur :-signalement , vue (lalan-dratsy)
-Tsanta:-visiteur:-vue lalan-dratsy 
-Steeve , fandresena:-admin (bouton synchronisation , signalement , vue)
-
-
-
-
-
