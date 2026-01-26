@@ -1,0 +1,4 @@
+com\roaddamage\config\SecurityConfig.class
+com\roaddamage\service\FirebaseService.class
+com\roaddamage\controller\VisitorController.class
+com\roaddamage\RoadDamageReporterApplication.class
