@@ -8,13 +8,13 @@ admin.initializeApp({
   credential: admin.credential.cert({
     projectId: "cloud-project-389d0",
     clientEmail: "firebase-adminsdk-fbsvc@cloud-project-389d0.iam.gserviceaccount.com",
-    privateKey:  "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC0vDqzYuX/x9qm\nfZ22D/xArTBAm7eKPBjOXngD+1B+iBm4s3WQDq43a2s7ypKobGBon2SKvdtRmWvV\nD0IMAnMOfpKjzL3EDt/c/wQQ9nuVDxWvumPS3XN3xrLpLbZj5hRtBRZ0iEpymLxq\ne1zSbkWw4cARAoTE9e5VPf/UiCi1moT2I4hyRfsxi3O/TvkK/E2seVAR6/NFaHLu\n0kOLruBZOaP1+fSScaf54adiGlrhalBAwyR3zQ0o1yE7FAQyYRJHdoLqf0b5U6wj\nVIgr+jRanPLlHKCAUmSMTug3lEiAYqJvjPdzimUM77w6HtQky0zK4pZs6NVVgQ2R\nV/TQ/REJAgMBAAECggEAQfsTvQiGafYWs0BZsq0sTJpNatDOVSdycOiZDO8TKFZc\neYr+iMxrOq07FTVzjAwguCE0jdgY+LW3Ya1z0bmVMn3v39+viaNag64P2Hd7j2PV\n6XT023bgICKIj0sScm79Fv3MAFf/Qc3Tv1XxAZujUptfyHXwbY1Q6Iq9WmQo5H77\nLDEd6tIMb5WyOBRmKhdOkyGn34PQ7pg+2ZqPVi4fjTxIbwDRnW/3lEi927BXY2rL\nf6MqP87bilqGZGcZmJi3XHA0CVeI1ue24ms/uIEs6yUE3BjwOtqFFlpZgy6W4JKD\n/jZWMm0NPA2ZR5NrahKjtvFx1meVdO1Otc+f524ELwKBgQDXoUOFKi9wa1D9A8U6\nfkyyJeQlCJN4alJ/A/+bzCZVNSihavvI+3QvDRGPDRN+wLSfDIQJcmvxM0Ewb5Zm\nCzPgPNJk10rT9ALHwF0+ZTxjn7OAWMWaAhFWEwQm/+1D656F8jsbM3qq96ajDvfs\nqQIjdw8GSHq+xdPIYRKCk/1U/wKBgQDWkoevI249rMb8yHe1Ar5QD2OO3VRjRNSt\nw970lji4TR5JY560ZU9IkdFRk8YsRGGU0sjukvFmEzwACEQfOpwKlYe7IJxvJIhF\niOPowf9HLgLdbvRy/19M5fSQNMzAGaNpaJXQ9uM8LTDcCcxeBxDIinE3qqZyJZGS\nePfQ+XTx9wKBgDSbZnK1oQ9HT2H7KoIj0ChicC/M0NW+8tOEMTdcbjm5l2kSRc15\n85WLFa6V3Ry+fRKUph376XPWMmBTyRiqQQTDMf1iPSJK1ObQ+q6/WiVgEBYPEl6J\nhJtAVnIBXGyGro01VNBFFfdiJih//WKitR/b6zF4O2IRt6KadD6hRlwXAoGAX1Zl\n4SRt9AtTsrdjsNKSOsJLqwueVikcEkUISEaC1yi0v0j7GA43hvf7ODLfh4WukdCC\nJLa3eXIsY5tIoVOKR42e7D8WIq/puHOVSDMCON8xuK92/62F64X0/ynmm6gImmo0\nvs8jsfYmUm4sFs8u3tvcaC5znB4jKyCCg6CDHIsCgYEA1QbDFvhL4shvZQdj0Bul\n+ZGRcHun1fJ1UpfKhp9IGEvb97UsE98Tgmp3pdPpguPHU6NgHg+UjJiDZlwITNIU\nc6/RuVfKBP89AXR6C2izCynJeu4LPNy4bTLNBc8fyRMJQknX2z6tSzeqDxE4i9ex\ntcBSEz6FrRLp4XsU0Uy+rVg=\n-----END PRIVATE KEY-----\n"
+    privateKey: "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC0vDqzYuX/x9qm\nfZ22D/xArTBAm7eKPBjOXngD+1B+iBm4s3WQDq43a2s7ypKobGBon2SKvdtRmWvV\nD0IMAnMOfpKjzL3EDt/c/wQQ9nuVDxWvumPS3XN3xrLpLbZj5hRtBRZ0iEpymLxq\ne1zSbkWw4cARAoTE9e5VPf/UiCi1moT2I4hyRfsxi3O/TvkK/E2seVAR6/NFaHLu\n0kOLruBZOaP1+fSScaf54adiGlrhalBAwyR3zQ0o1yE7FAQyYRJHdoLqf0b5U6wj\nVIgr+jRanPLlHKCAUmSMTug3lEiAYqJvjPdzimUM77w6HtQky0zK4pZs6NVVgQ2R\nV/TQ/REJAgMBAAECggEAQfsTvQiGafYWs0BZsq0sTJpNatDOVSdycOiZDO8TKFZc\neYr+iMxrOq07FTVzjAwguCE0jdgY+LW3Ya1z0bmVMn3v39+viaNag64P2Hd7j2PV\n6XT023bgICKIj0sScm79Fv3MAFf/Qc3Tv1XxAZujUptfyHXwbY1Q6Iq9WmQo5H77\nLDEd6tIMb5WyOBRmKhdOkyGn34PQ7pg+2ZqPVi4fjTxIbwDRnW/3lEi927BXY2rL\nf6MqP87bilqGZGcZmJi3XHA0CVeI1ue24ms/uIEs6yUE3BjwOtqFFlpZgy6W4JKD\n/jZWMm0NPA2ZR5NrahKjtvFx1meVdO1Otc+f524ELwKBgQDXoUOFKi9wa1D9A8U6\nfkyyJeQlCJN4alJ/A/+bzCZVNSihavvI+3QvDRGPDRN+wLSfDIQJcmvxM0Ewb5Zm\nCzPgPNJk10rT9ALHwF0+ZTxjn7OAWMWaAhFWEwQm/+1D656F8jsbM3qq96ajDvfs\nqQIjdw8GSHq+xdPIYRKCk/1U/wKBgQDWkoevI249rMb8yHe1Ar5QD2OO3VRjRNSt\nw970lji4TR5JY560ZU9IkdFRk8YsRGGU0sjukvFmEzwACEQfOpwKlYe7IJxvJIhF\niOPowf9HLgLdbvRy/19M5fSQNMzAGaNpaJXQ9uM8LTDcCcxeBxDIinE3qqZyJZGS\nePfQ+XTx9wKBgDSbZnK1oQ9HT2H7KoIj0ChicC/M0NW+8tOEMTdcbjm5l2kSRc15\n85WLFa6V3Ry+fRKUph376XPWMmBTyRiqQQTDMf1iPSJK1ObQ+q6/WiVgEBYPEl6J\nhJtAVnIBXGyGro01VNBFFfdiJih//WKitR/b6zF4O2IRt6KadD6hRlwXAoGAX1Zl\n4SRt9AtTsrdjsNKSOsJLqwueVikcEkUISEaC1yi0v0j7GA43hvf7ODLfh4WukdCC\nJLa3eXIsY5tIoVOKR42e7D8WIq/puHOVSDMCON8xuK92/62F64X0/ynmm6gImmo0\nvs8jsfYmUm4sFs8u3tvcaC5znB4jKyCCg6CDHIsCgYEA1QbDFvhL4shvZQdj0Bul\n+ZGRcHun1fJ1UpfKhp9IGEvb97UsE98Tgmp3pdPpguPHU6NgHg+UjJiDZlwITNIU\nc6/RuVfKBP89AXR6C2izCynJeu4LPNy4bTLNBc8fyRMJQknX2z6tSzeqDxE4i9ex\ntcBSEz6FrRLp4XsU0Uy+rVg=\n-----END PRIVATE KEY-----\n"
   })
 });
 
 const db = admin.firestore();
 
-// Données des utilisateurs (depuis table.sql et data.sql)
+// Données des utilisateurs (depuis table.sql et data.sql)1
 const utilisateurs = [
   {
     email: 'user1@route.mg',
@@ -173,9 +173,9 @@ async function migrateData() {
   // Étape 1: Créer les utilisateurs dans Firestore
   // Note: Les comptes Authentication doivent être créés manuellement via Firebase Console
   console.log('📝 Étape 1: Migration des utilisateurs...');
-  
+
   const userMap = {}; // Pour mapper les emails aux UIDs
-  
+
   for (const user of utilisateurs) {
     try {
       // Recherche si l'utilisateur existe déjà dans Authentication
