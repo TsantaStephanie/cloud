@@ -125,6 +125,7 @@ export interface Database {
           description: string;
           statut: RouteStatut;
           longueur_km: number;
+          image_url?: string;
           date_creation: string;
           date_mise_a_jour: string;
         };
@@ -137,6 +138,7 @@ export interface Database {
           description: string;
           statut?: RouteStatut;
           longueur_km?: number;
+          image_url?: string;
           date_creation?: string;
           date_mise_a_jour?: string;
         };
@@ -149,6 +151,7 @@ export interface Database {
           description?: string;
           statut?: RouteStatut;
           longueur_km?: number;
+          image_url?: string;
           date_creation?: string;
           date_mise_a_jour?: string;
         };

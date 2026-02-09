@@ -14,6 +14,7 @@ export interface RouteEndommagee {
   entreprise?: string;
   date_creation: string;
   date_mise_a_jour: string;
+  imageUrl?: string;
 }
 
 export const apiService = {
@@ -68,85 +69,85 @@ export const apiService = {
 };
 
 // Données mock en fallback
-function getMockRoutes(): RouteEndommagee[] {
-  return [
-    {
-      id: '1',
-      utilisateur_id: '2',
-      latitude: -18.8792,
-      longitude: 47.5079,
-      gravite: 'critique',
-      description: 'Grand nid-de-poule avenue de l\'Indépendance',
-      statut: 'nouveau',
-      longueur_km: 0.05,
-      surface_m2: 50,
-      budget: 5000,
-      entreprise: 'SARL Routes Plus',
-      date_creation: new Date().toISOString(),
-      date_mise_a_jour: new Date().toISOString()
-    },
-    {
-      id: '2',
-      utilisateur_id: '2',
-      latitude: -18.9136,
-      longitude: 47.5361,
-      gravite: 'elevee',
-      description: 'Chaussée effondrée à Ambohijanahary',
-      statut: 'verifie',
-      longueur_km: 0.15,
-      surface_m2: 150,
-      budget: 15000,
-      entreprise: 'Construction Tana',
-      date_creation: new Date().toISOString(),
-      date_mise_a_jour: new Date().toISOString()
-    },
-    {
-      id: '3',
-      utilisateur_id: '1',
-      latitude: -18.8667,
-      longitude: 47.5167,
-      gravite: 'moyenne',
-      description: 'Route défoncée à Analakely',
-      statut: 'en_cours',
-      longueur_km: 0.30,
-      surface_m2: 300,
-      budget: 25000,
-      entreprise: 'BTP Madagascar',
-      date_creation: new Date().toISOString(),
-      date_mise_a_jour: new Date().toISOString()
-    },
-    {
-      id: '4',
-      utilisateur_id: '2',
-      latitude: -18.9036,
-      longitude: 47.5272,
-      gravite: 'faible',
-      description: 'Petite fissure route d\'Andrainarivo',
-      statut: 'termine',
-      longueur_km: 0.02,
-      surface_m2: 20,
-      budget: 2000,
-      entreprise: 'SARL Routes Plus',
-      date_creation: new Date().toISOString(),
-      date_mise_a_jour: new Date().toISOString()
-    },
-    {
-      id: '5',
-      utilisateur_id: '1',
-      latitude: -18.8900,
-      longitude: 47.5500,
-      gravite: 'elevee',
-      description: 'Inondation à Andravoahangy',
-      statut: 'nouveau',
-      longueur_km: 0.80,
-      surface_m2: 800,
-      budget: 45000,
-      entreprise: 'Hydro Services',
-      date_creation: new Date().toISOString(),
-      date_mise_a_jour: new Date().toISOString()
-    }
-  ];
-}
+ function getMockRoutes(): RouteEndommagee[] {
+   return [
+     {
+       id: '1',
+       utilisateur_id: '2',
+       latitude: -18.8792,
+       longitude: 47.5079,
+       gravite: 'critique',
+       description: 'Grand nid-de-poule avenue de l\'Indépendance',
+       statut: 'nouveau',
+       longueur_km: 0.05,
+       surface_m2: 50,
+       budget: 5000,
+       entreprise: 'SARL Routes Plus',
+       date_creation: new Date().toISOString(),
+       date_mise_a_jour: new Date().toISOString()
+     },
+     {
+       id: '2',
+       utilisateur_id: '2',
+       latitude: -18.9136,
+       longitude: 47.5361,
+       gravite: 'elevee',
+       description: 'Chaussée effondrée à Ambohijanahary',
+       statut: 'verifie',
+       longueur_km: 0.15,
+       surface_m2: 150,
+       budget: 15000,
+       entreprise: 'Construction Tana',
+       date_creation: new Date().toISOString(),
+       date_mise_a_jour: new Date().toISOString()
+     },
+     {
+       id: '3',
+       utilisateur_id: '1',
+       latitude: -18.8667,
+       longitude: 47.5167,
+       gravite: 'moyenne',
+       description: 'Route défoncée à Analakely',
+       statut: 'en_cours',
+       longueur_km: 0.30,
+       surface_m2: 300,
+       budget: 25000,
+       entreprise: 'BTP Madagascar',
+       date_creation: new Date().toISOString(),
+       date_mise_a_jour: new Date().toISOString()
+     },
+     {
+       id: '4',
+       utilisateur_id: '2',
+       latitude: -18.9036,
+       longitude: 47.5272,
+       gravite: 'faible',
+       description: 'Petite fissure route d\'Andrainarivo',
+       statut: 'termine',
+       longueur_km: 0.02,
+       surface_m2: 20,
+       budget: 2000,
+       entreprise: 'SARL Routes Plus',
+       date_creation: new Date().toISOString(),
+       date_mise_a_jour: new Date().toISOString()
+     },
+     {
+       id: '5',
+       utilisateur_id: '1',
+       latitude: -18.8900,
+       longitude: 47.5500,
+       gravite: 'elevee',
+       description: 'Inondation à Andravoahangy',
+       statut: 'nouveau',
+       longueur_km: 0.80,
+       surface_m2: 800,
+       budget: 45000,
+       entreprise: 'Hydro Services',
+       date_creation: new Date().toISOString(),
+       date_mise_a_jour: new Date().toISOString()
+     }
+   ];
+ }
 
 // ============================================
 // SYSTÈME D'ICÔNES PERSONNALISÉES

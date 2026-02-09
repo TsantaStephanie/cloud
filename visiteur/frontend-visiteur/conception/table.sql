@@ -15,6 +15,7 @@ CREATE TABLE routes_endommagees (
     latitude DECIMAL(10, 8) NOT NULL,
     longitude DECIMAL(11, 8) NOT NULL,
     gravite VARCHAR(50) CHECK (gravite IN ('faible', 'moyenne', 'elevee', 'critique')),
+    image_url TEXT,
     description TEXT,
     statut VARCHAR(50) CHECK (statut IN ('signale', 'verifie', 'en_cours', 'repare')) DEFAULT 'signale',
     longueur_km DECIMAL(8, 2) DEFAULT 0.00,

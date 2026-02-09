@@ -18,6 +18,7 @@ export interface RouteEndommagee {
   surfaceM2?: number;
   budget?: number;
   entreprise?: string;
+  imageUrl?: string;
   dateCreation: Date;
   dateMiseAJour: Date;
 }
@@ -35,6 +36,7 @@ export interface Signalement {
   surfaceM2?: number;
   budget?: number;
   entreprise?: string;
+  imageUrl?: string;
   dateSignalement?: Date;
   dateCreation: Date;
   dateMiseAJour?: Date;
