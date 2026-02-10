@@ -1,0 +1,40 @@
+erDiagram
+    UTILISATEURS {
+        int id PK
+        string email UK
+        string mot_de_passe_hash
+        string role
+        datetime date_creation
+    }
+    
+    ROUTES_ENDOMMAGEES {
+        int id PK
+        int utilisateur_id FK
+        decimal latitude
+        decimal longitude
+        string gravite
+        string imageUrl
+        string description
+        string statut
+        decimal longueur_km
+        decimal surface_m2
+        decimal budget
+        string entreprise
+        datetime date_creation
+        datetime date_mise_a_jour
+    }
+    
+    HISTORIQUE_MODIFICATIONS {
+        int id PK
+        int route_endommagee_id FK
+        int utilisateur_id FK
+        string type_modification
+        json ancienne_valeur
+        json nouvelle_valeur
+        string description
+        datetime date_creation
+    }
+
+    UTILISATEURS ||--o{ ROUTES_ENDOMMAGEES : "crée"
+    UTILISATEURS ||--o{ HISTORIQUE_MODIFICATIONS : "modifie"
+    ROUTES_ENDOMMAGEES ||--o{ HISTORIQUE_MODIFICATIONS : "concerne"

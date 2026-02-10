@@ -3,6 +3,7 @@ import { IonicVue } from '@ionic/vue';
 import { createPinia } from 'pinia';
 import App from './App.vue';
 import router from './router';
+import IonicErrorHandler from './plugins/ionicErrorHandler';
 
 /* Core CSS required for Ionic components */
 import '@ionic/vue/css/core.css';
@@ -15,6 +16,12 @@ import '@ionic/vue/css/text-alignment.css';
 import '@ionic/vue/css/text-transformation.css';
 import '@ionic/vue/css/flex-utils.css';
 import '@ionic/vue/css/display.css';
+
+/* Ionic Vue Components CSS */
+import '@ionic/vue/css/ionic.bundle.css';
+
+// Installer le gestionnaire d'erreurs AVANT de créer l'app
+IonicErrorHandler.install();
 
 const pinia = createPinia();
 const app = createApp(App)

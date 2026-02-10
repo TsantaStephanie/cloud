@@ -18,9 +18,24 @@
           <ion-label>Signalements</ion-label>
         </ion-tab-button>
 
+        <ion-tab-button tab="historique" href="/tabs/historique" v-if="authStore.isAuthenticated">
+          <ion-icon :icon="timeOutline" />
+          <ion-label>Historique</ion-label>
+        </ion-tab-button>
+
         <ion-tab-button tab="profile" href="/tabs/profile">
           <ion-icon :icon="personOutline" />
           <ion-label>Profil</ion-label>
+        </ion-tab-button>
+
+        <!-- Tab Admin (seulement pour les admins) -->
+        <ion-tab-button 
+          v-if="authStore.userRole === 'admin'" 
+          tab="admin" 
+          href="/admin"
+        >
+          <ion-icon :icon="settingsOutline" />
+          <ion-label>Admin</ion-label>
         </ion-tab-button>
       </ion-tab-bar>
     </ion-tabs>
@@ -37,7 +52,7 @@ import {
   IonPage,
   IonRouterOutlet,
 } from '@ionic/vue';
-import { mapOutline, addCircleOutline, listOutline, personOutline } from 'ionicons/icons';
+import { mapOutline, addCircleOutline, listOutline, personOutline, timeOutline, settingsOutline } from 'ionicons/icons';
 import { useAuthStore } from '@/stores/auth';
 
 const authStore = useAuthStore();

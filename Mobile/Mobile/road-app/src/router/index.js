@@ -52,7 +52,32 @@ const routes = [
       {
         path: 'profile',
         name: 'Profile',
-        component: () => import('@/views/ProfileView.vue')
+        component: () => import('@/views/ProfileView.vue'),
+        meta: { requiresAuth: true }
+      },
+      {
+        path: 'historique',
+        name: 'Historique',
+        component: () => import('@/views/HistoriqueView.vue'),
+        meta: { requiresAuth: true }
+      },
+      {
+        path: 'debug',
+        name: 'Debug',
+        component: () => import('@/views/DebugView.vue'),
+        meta: { requiresAuth: true }
+      },
+      {
+        path: 'admin',
+        name: 'Admin',
+        component: () => import('@/views/AdminView.vue'),
+        meta: { requiresAuth: true, requiresAdmin: true }
+      },
+      {
+        path: 'admin/report/:id',
+        name: 'AdminReportDetail',
+        component: () => import('@/views/EditReportView.vue'),
+        meta: { requiresAuth: true, requiresAdmin: true }
       }
     ]
   }
@@ -70,6 +95,8 @@ router.beforeEach((to, from, next) => {
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
     next({ name: 'Login' });
   } else if (to.meta.requiresGuest && authStore.isAuthenticated) {
+    next({ name: 'Map' });
+  } else if (to.meta.requiresAdmin && (!authStore.isAuthenticated || authStore.userRole !== 'admin')) {
     next({ name: 'Map' });
   } else {
     next();

@@ -98,6 +98,30 @@ public class FirebaseService {
         return reports;
     }
     
+    // Créer un nouveau signalement
+    public String createReport(Map<String, Object> report) {
+        try {
+            if (firestore == null) {
+                System.out.println("⚠️ Mode test - simulation de création");
+                return "test-report-" + System.currentTimeMillis();
+            }
+            
+            // Ajouter un timestamp
+            report.put("date_creation", com.google.cloud.Timestamp.now());
+            
+            // Créer le document dans Firestore
+            com.google.api.core.ApiFuture<com.google.cloud.firestore.DocumentReference> future = firestore.collection("reports").add(report);
+            com.google.cloud.firestore.DocumentReference docRef = future.get();
+            
+            System.out.println("✅ Signalement créé avec ID: " + docRef.getId());
+            return docRef.getId();
+            
+        } catch (InterruptedException | ExecutionException e) {
+            System.err.println("❌ Erreur création signalement: " + e.getMessage());
+            throw new RuntimeException("Erreur lors de la création du signalement", e);
+        }
+    }
+    
     // Récupérer les statistiques
     public Map<String, Object> getReportsStats() {
         Map<String, Object> stats = new HashMap<>();

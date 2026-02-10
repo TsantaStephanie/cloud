@@ -66,11 +66,13 @@ import { ref, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import L from 'leaflet';
 import { useReportsStore } from '@/stores/reports';
+import { useSafeNavigation } from '@/composables/useSafeNavigation';
 import { trashOutline, refreshOutline, locateOutline, arrowUpOutline, cameraOutline, createOutline, businessOutline, cashOutline, locationOutline, globeOutline, imagesOutline, checkmarkCircleOutline } from 'ionicons/icons';
 import 'leaflet/dist/leaflet.css';
 
 const router = useRouter();
 const reportsStore = useReportsStore();
+const { errorCount } = useSafeNavigation();
 
 // Fonction pour convertir les icônes ionicons en SVG
 const getIconSvg = (iconName, size = 16, color = '#003049') => {
@@ -206,28 +208,59 @@ const getTempMarkerIcon = () => {
 };
 
 const handleMapClick = (e) => {
-  const clickedElement = e.originalEvent.target;
-  if (clickedElement.classList.contains('custom-marker') || 
-      clickedElement.closest('.custom-marker') ||
-      clickedElement.classList.contains('leaflet-marker-icon')) {
-    console.log(' Clic sur un marqueur existant - annulation');
-    return;
-  }
+  try {
+    const clickedElement = e.originalEvent?.target;
+    
+    // Vérification ultra-sécurisée
+    if (!clickedElement) {
+      console.log('⚠️ Élément cliqué non défini');
+      return;
+    }
+    
+    // Vérification sécurisée de classList avec fallback
+    let hasMarkerClass = false;
+    try {
+      const elementClassList = clickedElement.classList || [];
+      hasMarkerClass = elementClassList.contains('custom-marker') || 
+                            elementClassList.contains('leaflet-marker-icon');
+    } catch (classListError) {
+      console.log('⚠️ Erreur classList ignorée:', classListError.message);
+    }
+    
+    // Vérification du closest avec fallback
+    try {
+      if (!hasMarkerClass && clickedElement.closest) {
+        hasMarkerClass = hasMarkerClass || 
+                     clickedElement.closest('.custom-marker') ||
+                     clickedElement.closest('.leaflet-marker-icon');
+      }
+    } catch (closestError) {
+      console.log('⚠️ Erreur closest ignorée:', closestError.message);
+    }
+    
+    if (hasMarkerClass) {
+      console.log(' Clic sur un marqueur existant - annulation');
+      return;
+    }
 
-  const { lat, lng } = e.latlng;
-  console.log(' Clic sur la carte vide à:', lat, lng);
+    const { lat, lng } = e.latlng;
+    console.log(' Clic sur la carte vide à:', lat, lng);
   
-  if (tempMarker.value) {
-    map.value.removeLayer(tempMarker.value);
+    if (tempMarker.value) {
+      map.value.removeLayer(tempMarker.value);
+    }
+  
+    tempMarker.value = L.marker([lat, lng], {
+      icon: getTempMarkerIcon()
+    }).addTo(map.value);
+  
+    const popupContent = '<div style="font-family: var(--font-body); min-width: 200px; text-align: center;"><h4 style="margin: 0 0 12px 0; color: var(--navy-dark);">Nouveau Signalement</h4><p style="margin: 0 0 12px 0; font-size: 13px; color: rgba(0, 48, 73, 0.7);">Position: ' + lat.toFixed(6) + ', ' + lng.toFixed(6) + '</p><button onclick="window.createReportAt(' + lat + ', ' + lng + ')" style="background: var(--navy-dark); color: white; border: none; padding: 8px 16px; border-radius: 8px; font-size: 14px; cursor: pointer; width: 100%;">Créer un signalement</button></div>';
+  
+    tempMarker.value.bindPopup(popupContent).openPopup();
+  } catch (error) {
+    console.error('💥 Erreur dans handleMapClick:', error);
+    // Continuer malgré l'erreur - ne pas crasher l'app
   }
-  
-  tempMarker.value = L.marker([lat, lng], {
-    icon: getTempMarkerIcon()
-  }).addTo(map.value);
-  
-  const popupContent = '<div style="font-family: var(--font-body); min-width: 200px; text-align: center;"><h4 style="margin: 0 0 12px 0; color: var(--navy-dark);">Nouveau Signalement</h4><p style="margin: 0 0 12px 0; font-size: 13px; color: rgba(0, 48, 73, 0.7);">Position: ' + lat.toFixed(6) + ', ' + lng.toFixed(6) + '</p><button onclick="window.createReportAt(' + lat + ', ' + lng + ')" style="background: var(--navy-dark); color: white; border: none; padding: 8px 16px; border-radius: 8px; font-size: 14px; cursor: pointer; width: 100%;">Créer un signalement</button></div>';
-  
-  tempMarker.value.bindPopup(popupContent).openPopup();
 };
 
 window.createReportAt = (lat, lng) => {

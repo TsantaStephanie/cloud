@@ -14,6 +14,7 @@ import {
   serverTimestamp 
 } from 'firebase/firestore';
 import { useAuthStore } from './auth';
+import { useHistoriqueStore } from './historique';
 
 export const useReportsStore = defineStore('reports', {
   state: () => ({
@@ -145,6 +146,16 @@ export const useReportsStore = defineStore('reports', {
         const docRef = await addDoc(collection(db, 'routesEndommagees'), newReport);
         console.log('✅ Document créé avec ID:', docRef.id);
         
+        // Ajouter l'historique de création
+        const historiqueStore = useHistoriqueStore();
+        await historiqueStore.ajouterChangement(
+          docRef.id,
+          'creation',
+          null,
+          newReport,
+          'signalement'
+        );
+        
         // Rafraîchir les données dans les deux applications
         await this.fetchReports();
         console.log('🔄 Données rafraîchies dans l\'application mobile');
@@ -207,28 +218,116 @@ export const useReportsStore = defineStore('reports', {
         
         const reportRef = doc(db, 'routesEndommagees', reportId);
         
+        // Récupérer le signalement actuel pour comparer les changements
+        const currentReport = this.reports.find(r => r.id === reportId);
+        const historiqueStore = useHistoriqueStore();
+        
         // Préparer les données à mettre à jour
         const updateFields = {
           dateMiseAJour: serverTimestamp()
         };
         
-        // Ajouter les images si présentes
-        if (updateData.imageUrl) {
+        // Suivre chaque champ modifié
+        if (updateData.imageUrl && currentReport?.imageUrl !== updateData.imageUrl) {
+          await historiqueStore.ajouterChangement(
+            reportId,
+            'modification',
+            currentReport?.imageUrl || null,
+            updateData.imageUrl,
+            'imageUrl'
+          );
           updateFields.imageUrl = updateData.imageUrl;
         }
         
         if (updateData.images && Array.isArray(updateData.images)) {
+          if (JSON.stringify(currentReport?.images) !== JSON.stringify(updateData.images)) {
+            await historiqueStore.ajouterChangement(
+              reportId,
+              'modification',
+              currentReport?.images || [],
+              updateData.images,
+              'images'
+            );
+          }
           updateFields.images = updateData.images;
         }
         
-        // Ajouter les autres champs si présents
-        if (updateData.description) updateFields.description = updateData.description;
-        if (updateData.gravite) updateFields.gravite = updateData.gravite;
-        if (updateData.statut) updateFields.statut = updateData.statut;
-        if (updateData.longueurKm) updateFields.longueurKm = updateData.longueurKm;
-        if (updateData.surfaceM2) updateFields.surfaceM2 = updateData.surfaceM2;
-        if (updateData.budget) updateFields.budget = updateData.budget;
-        if (updateData.entreprise) updateFields.entreprise = updateData.entreprise;
+        if (updateData.description && currentReport?.description !== updateData.description) {
+          await historiqueStore.ajouterChangement(
+            reportId,
+            'modification',
+            currentReport?.description || null,
+            updateData.description,
+            'description'
+          );
+          updateFields.description = updateData.description;
+        }
+        
+        if (updateData.gravite && currentReport?.gravite !== updateData.gravite) {
+          await historiqueStore.ajouterChangement(
+            reportId,
+            'modification',
+            currentReport?.gravite || null,
+            updateData.gravite,
+            'gravite'
+          );
+          updateFields.gravite = updateData.gravite;
+        }
+        
+        if (updateData.statut && currentReport?.statut !== updateData.statut) {
+          await historiqueStore.ajouterChangement(
+            reportId,
+            'statut',
+            currentReport?.statut || null,
+            updateData.statut,
+            'statut'
+          );
+          updateFields.statut = updateData.statut;
+        }
+        
+        if (updateData.longueurKm && currentReport?.longueurKm !== updateData.longueurKm) {
+          await historiqueStore.ajouterChangement(
+            reportId,
+            'modification',
+            currentReport?.longueurKm || null,
+            updateData.longueurKm,
+            'longueurKm'
+          );
+          updateFields.longueurKm = updateData.longueurKm;
+        }
+        
+        if (updateData.surfaceM2 && currentReport?.surfaceM2 !== updateData.surfaceM2) {
+          await historiqueStore.ajouterChangement(
+            reportId,
+            'modification',
+            currentReport?.surfaceM2 || null,
+            updateData.surfaceM2,
+            'surfaceM2'
+          );
+          updateFields.surfaceM2 = updateData.surfaceM2;
+        }
+        
+        if (updateData.budget && currentReport?.budget !== updateData.budget) {
+          await historiqueStore.ajouterChangement(
+            reportId,
+            'modification',
+            currentReport?.budget || null,
+            updateData.budget,
+            'budget'
+          );
+          updateFields.budget = updateData.budget;
+        }
+        
+        if (updateData.entreprise && currentReport?.entreprise !== updateData.entreprise) {
+          await historiqueStore.ajouterChangement(
+            reportId,
+            'modification',
+            currentReport?.entreprise || null,
+            updateData.entreprise,
+            'entreprise'
+          );
+          updateFields.entreprise = updateData.entreprise;
+        }
         
         console.log('📤 Champs à mettre à jour:', updateFields);
         
