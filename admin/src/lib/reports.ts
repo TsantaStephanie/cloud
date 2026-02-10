@@ -9,9 +9,12 @@ export interface Report {
   description: string;
   status: ReportStatus;
   priority: ReportPriority;
+  gravity_level?: number;
   latitude: number;
   longitude: number;
   location_name: string;
+  surface_m2?: number;
+  budget?: number;
   created_at: string;
   updated_at: string;
 }

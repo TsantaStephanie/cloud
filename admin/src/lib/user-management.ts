@@ -2,7 +2,7 @@ import { collections, Utilisateur, dateToTimestamp } from './firebase';
 import { addDoc } from 'firebase/firestore';
 //import bcrypt from 'bcryptjs';
 import type { UserRole } from '../types/database';
-import { Timestamp } from 'firebase/firestore';
+//import { Timestamp } from 'firebase/firestore';
 
 // Configuration de l'API backend admin
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001/api';

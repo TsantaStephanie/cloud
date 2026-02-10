@@ -272,18 +272,87 @@ const Admin: React.FC = () => {
               anchor="top"
               onClose={() => setSelectedReport(null)}
               closeOnClick={false}
-              className="bg-white rounded-lg shadow-lg p-4 max-w-xs"
+              className="bg-white rounded-lg shadow-lg p-4 max-w-sm"
             >
-              <div className="space-y-2">
-                <h3 className="font-bold text-gray-900">{selectedReport.title}</h3>
-                <p className="text-sm text-gray-600">{selectedReport.description}</p>
-                <div className="flex justify-between text-xs">
-                  <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded">
-                    {selectedReport.status}
+              <div className="space-y-3">
+                {/* En-tête avec titre et niveau de gravité */}
+                <div>
+                  <h3 className="font-bold text-gray-900 text-lg">{selectedReport.title}</h3>
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="text-sm font-medium text-gray-600">Niveau:</span>
+                    <span className={`px-2 py-1 rounded text-xs font-bold ${
+                      (selectedReport.gravity_level ?? 0) >= 8 ? 'bg-red-100 text-red-800' :
+                      (selectedReport.gravity_level ?? 0) >= 6 ? 'bg-orange-100 text-orange-800' :
+                      (selectedReport.gravity_level ?? 0) >= 4 ? 'bg-yellow-100 text-yellow-800' :
+                      'bg-green-100 text-green-800'
+                    }`}>
+                      {selectedReport.gravity_level ?? 'N/A'}/10
+                    </span>
+                  </div>
+                </div>
+
+                {/* Description */}
+                <div>
+                  <p className="text-sm text-gray-700">{selectedReport.description}</p>
+                </div>
+
+                {/* Informations techniques */}
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs font-medium text-gray-500">Surface:</span>
+                    <span className="text-sm font-semibold text-gray-900">
+                      {selectedReport.surface_m2 ? `${selectedReport.surface_m2} m²` : 'Non spécifiée'}
+                    </span>
+                  </div>
+                  
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs font-medium text-gray-500">Budget estimé:</span>
+                    <span className="text-sm font-bold text-green-600">
+                      {selectedReport.budget ? 
+                        new Intl.NumberFormat('fr-FR', { 
+                          style: 'currency', 
+                          currency: 'EUR',
+                          maximumFractionDigits: 0 
+                        }).format(selectedReport.budget) : 
+                        'Non calculé'
+                      }
+                    </span>
+                  </div>
+                </div>
+
+                {/* Statut et priorité */}
+                <div className="flex justify-between items-center pt-2 border-t border-gray-200">
+                  <span className={`px-2 py-1 rounded text-xs font-medium ${
+                    selectedReport.status === 'reported' ? 'bg-blue-100 text-blue-800' :
+                    selectedReport.status === 'in_progress' ? 'bg-yellow-100 text-yellow-800' :
+                    'bg-green-100 text-green-800'
+                  }`}>
+                    {selectedReport.status === 'reported' ? 'Signalé' :
+                     selectedReport.status === 'in_progress' ? 'En cours' :
+                     'Terminé'}
                   </span>
-                  <span className="px-2 py-1 bg-orange-100 text-orange-800 rounded">
-                    {selectedReport.priority}
+                  <span className={`px-2 py-1 rounded text-xs font-medium ${
+                    selectedReport.priority === 'urgent' ? 'bg-red-100 text-red-800' :
+                    selectedReport.priority === 'high' ? 'bg-orange-100 text-orange-800' :
+                    selectedReport.priority === 'medium' ? 'bg-yellow-100 text-yellow-800' :
+                    'bg-gray-100 text-gray-800'
+                  }`}>
+                    {selectedReport.priority === 'urgent' ? 'Urgent' :
+                     selectedReport.priority === 'high' ? 'Élevé' :
+                     selectedReport.priority === 'medium' ? 'Moyen' :
+                     'Faible'}
                   </span>
+                </div>
+
+                {/* Date */}
+                <div className="text-xs text-gray-500 pt-1 border-t border-gray-100">
+                  Signalé le: {new Date(selectedReport.created_at).toLocaleDateString('fr-FR', {
+                    day: 'numeric',
+                    month: 'long',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  })}
                 </div>
               </div>
             </Popup>

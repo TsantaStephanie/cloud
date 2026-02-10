@@ -12,17 +12,28 @@ CREATE TABLE routes_endommagees (
     utilisateur_id INTEGER REFERENCES utilisateurs(id) ON DELETE SET NULL,
     latitude DECIMAL(10, 8) NOT NULL,
     longitude DECIMAL(11, 8) NOT NULL,
-    gravite VARCHAR(50) CHECK (gravite IN ('faible', 'moyenne', 'elevee', 'critique')),
+    gravite INTEGER CHECK (gravite >= 1 AND gravite <= 10),
     imageUrl TEXT,
     description TEXT,
     statut VARCHAR(50) CHECK (statut IN ('nouveau', 'en_cours', 'termine')) DEFAULT 'nouveau',
     longueur_km DECIMAL(8, 2) DEFAULT 0.00,
     surface_m2 DECIMAL(10, 2),
-    budget DECIMAL(12, 2),
+    budget DECIMAL(12, 2) GENERATED ALWAYS AS (COALESCE(surface_m2, 0) * COALESCE(gravite, 1) * (SELECT COALESCE(prix_par_m2, 1000) FROM configuration_prix WHERE id = 1)) STORED,
     entreprise VARCHAR(255),
     date_creation TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     date_mise_a_jour TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Table pour la configuration des prix
+CREATE TABLE configuration_prix (
+    id SERIAL PRIMARY KEY,
+    prix_par_m2 DECIMAL(10, 2) DEFAULT 1000.00,
+    date_mise_a_jour TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    utilisateur_id INTEGER REFERENCES utilisateurs(id) ON DELETE SET NULL
+);
+
+-- Insérer la configuration par défaut
+INSERT INTO configuration_prix (id, prix_par_m2) VALUES (1, 1000.00);
 
 -- Table pour suivre l'historique des changements de statut
 CREATE TABLE historique_statuts (

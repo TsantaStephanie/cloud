@@ -324,26 +324,26 @@ app.get('/api/reports', asyncHandler(async (req, res) => {
 
   query += ' ORDER BY date_creation DESC';
 
-  console.log('🔍 Requête SQL:', query);
-  console.log('🔍 Paramètres:', params);
-
   const result = await pool.query(query, params);
 
   // Convertir au format attendu par le frontend
   const convertedData = result.rows.map(row => ({
     id: row.id,
     user_id: row.utilisateur_id,
-    title: `Route endommagée - ${row.gravite}`,
+    title: `Route endommagée - niveau ${row.gravite}`,
     description: row.description || `Route de ${row.longueur_km || 0}km endommagée`,
     status: row.statut === 'nouveau' ? 'reported' :
       row.statut === 'verifie' ? 'in_progress' :
         row.statut === 'en_cours' ? 'in_progress' : 'completed',
-    priority: row.gravite === 'critique' ? 'urgent' :
-      row.gravite === 'elevee' ? 'high' :
-        row.gravite === 'moyenne' ? 'medium' : 'low',
+    priority: row.gravite >= 8 ? 'urgent' :
+      row.gravite >= 6 ? 'high' :
+        row.gravite >= 4 ? 'medium' : 'low',
+    gravity_level: row.gravite,
     latitude: row.latitude,
     longitude: row.longitude,
     location_name: `Position: ${row.latitude}, ${row.longitude}`,
+    surface_m2: row.surface_m2,
+    budget: row.budget,
     created_at: row.date_creation,
     updated_at: row.date_mise_a_jour
   }));
@@ -385,34 +385,33 @@ app.get('/api/reports/:id', asyncHandler(async (req, res) => {
   res.json({ success: true, data: convertedData });
 }));
 
-app.post('/api/reports', asyncHandler(async (req, res) => {
-  const { user_id, title, description, priority = 'medium', latitude, longitude, location_name } = req.body;
+app.post('/api/reports', authenticateToken, asyncHandler(async (req, res) => {
+  const { user_id, title, description, gravity_level, latitude, longitude, location_name, surface_m2 } = req.body;
 
-  // Convertir du format frontend vers le format routes_endommagees
-  const gravite = priority === 'urgent' ? 'critique' :
-    priority === 'high' ? 'elevee' :
-      priority === 'medium' ? 'moyenne' : 'faible';
-
+  // Convertir le niveau de gravité en statut si nécessaire
   const statut = 'nouveau';
 
   const result = await pool.query(
-    'INSERT INTO routes_endommagees (utilisateur_id, latitude, longitude, gravite, description, statut, date_creation, date_mise_a_jour) VALUES ($1, $2, $3, $4, $5, $6, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP) RETURNING *',
-    [user_id, latitude, longitude, gravite, description, statut]
+    'INSERT INTO routes_endommagees (utilisateur_id, latitude, longitude, gravite, description, statut, surface_m2, date_creation, date_mise_a_jour) VALUES ($1, $2, $3, $4, $5, $6, $7, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP) RETURNING *',
+    [user_id, latitude, longitude, gravity_level, description, statut, surface_m2]
   );
 
   const row = result.rows[0];
   const convertedData = {
     id: row.id,
     user_id: row.utilisateur_id,
-    title: `Route endommagée - ${row.gravite}`,
+    title: `Route endommagée - niveau ${row.gravite}`,
     description: row.description || `Route endommagée`,
     status: row.statut === 'nouveau' ? 'reported' : 'completed',
-    priority: row.gravite === 'critique' ? 'urgent' :
-      row.gravite === 'elevee' ? 'high' :
-        row.gravite === 'moyenne' ? 'medium' : 'low',
+    priority: row.gravite >= 8 ? 'urgent' :
+      row.gravite >= 6 ? 'high' :
+        row.gravite >= 4 ? 'medium' : 'low',
+    gravity_level: row.gravite,
     latitude: row.latitude,
     longitude: row.longitude,
     location_name: `Position: ${row.latitude}, ${row.longitude}`,
+    surface_m2: row.surface_m2,
+    budget: row.budget,
     created_at: row.date_creation,
     updated_at: row.date_mise_a_jour
   };
@@ -422,15 +421,14 @@ app.post('/api/reports', asyncHandler(async (req, res) => {
 
 app.put('/api/reports/:id', asyncHandler(async (req, res) => {
   const { id } = req.params;
-  const { title, description, status, priority, latitude, longitude, location_name } = req.body;
+  const { title, description, status, gravity_level, latitude, longitude, location_name, surface_m2 } = req.body;
 
   // Convertir du format frontend vers le format routes_endommagees
   let gravite, statut;
 
-  if (priority) {
-    gravite = priority === 'urgent' ? 'critique' :
-      priority === 'high' ? 'elevee' :
-        priority === 'medium' ? 'moyenne' : 'faible';
+  if (gravity_level !== undefined) {
+    // Utiliser le niveau de gravité numérique (1-10)
+    gravite = gravity_level;
   }
 
   if (status) {
@@ -456,6 +454,11 @@ app.put('/api/reports/:id', asyncHandler(async (req, res) => {
   if (description !== undefined) {
     fields.push(`description = $${paramIndex++}`);
     values.push(description);
+  }
+
+  if (surface_m2 !== undefined) {
+    fields.push(`surface_m2 = $${paramIndex++}`);
+    values.push(surface_m2);
   }
 
   if (latitude !== undefined) {
@@ -488,17 +491,20 @@ app.put('/api/reports/:id', asyncHandler(async (req, res) => {
   const convertedData = {
     id: row.id,
     user_id: row.utilisateur_id,
-    title: `Route endommagée - ${row.gravite}`,
+    title: `Route endommagée - niveau ${row.gravite}`,
     description: row.description || `Route endommagée`,
     status: row.statut === 'nouveau' ? 'reported' :
       row.statut === 'verifie' ? 'in_progress' :
         row.statut === 'en_cours' ? 'in_progress' : 'completed',
-    priority: row.gravite === 'critique' ? 'urgent' :
-      row.gravite === 'elevee' ? 'high' :
-        row.gravite === 'moyenne' ? 'medium' : 'low',
+    priority: row.gravite >= 8 ? 'urgent' :
+      row.gravite >= 6 ? 'high' :
+        row.gravite >= 4 ? 'medium' : 'low',
+    gravity_level: row.gravite,
     latitude: row.latitude,
     longitude: row.longitude,
     location_name: `Position: ${row.latitude}, ${row.longitude}`,
+    surface_m2: row.surface_m2,
+    budget: row.budget,
     created_at: row.date_creation,
     updated_at: row.date_mise_a_jour
   };
@@ -789,6 +795,88 @@ app.get('/api/health', (req, res) => {
     timestamp: new Date().toISOString()
   });
 });
+
+// Routes pour la configuration des prix
+/**
+ * @swagger
+ * /api/admin/price-config:
+ *   get:
+ *     summary: Obtenir la configuration des prix
+ *     tags: [Administration]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Configuration des prix
+ */
+app.get('/api/admin/price-config', authenticateToken, asyncHandler(async (req, res) => {
+  const result = await pool.query('SELECT * FROM configuration_prix ORDER BY date_mise_a_jour DESC LIMIT 1');
+
+  if (result.rows.length === 0) {
+    return res.json({
+      success: true,
+      data: { prix_par_m2: 1000.00 }
+    });
+  }
+
+  res.json({
+    success: true,
+    data: { prix_par_m2: result.rows[0].prix_par_m2 }
+  });
+}));
+
+/**
+ * @swagger
+ * /api/admin/price-config:
+ *   put:
+ *     summary: Mettre à jour la configuration des prix
+ *     tags: [Administration]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - prix_par_m2
+ *             properties:
+ *               prix_par_m2:
+ *                 type: number
+ *     responses:
+ *       200:
+ *         description: Configuration mise à jour
+ */
+app.put('/api/admin/price-config', authenticateToken, asyncHandler(async (req, res) => {
+  const { prix_par_m2 } = req.body;
+
+  if (!prix_par_m2 || prix_par_m2 <= 0) {
+    return res.status(400).json({
+      success: false,
+      message: 'Le prix par m² doit être un nombre positif'
+    });
+  }
+
+  const result = await pool.query(
+    'UPDATE configuration_prix SET prix_par_m2 = $1, date_mise_a_jour = CURRENT_TIMESTAMP, utilisateur_id = $2 WHERE id = 1 RETURNING *',
+    [prix_par_m2, req.userId]
+  );
+
+  if (result.rows.length === 0) {
+    // Si la configuration n'existe pas, on la crée
+    await pool.query(
+      'INSERT INTO configuration_prix (id, prix_par_m2, utilisateur_id) VALUES (1, $1, $2)',
+      [prix_par_m2, req.userId]
+    );
+  }
+
+  res.json({
+    success: true,
+    message: 'Configuration des prix mise à jour avec succès',
+    data: { prix_par_m2 }
+  });
+}));
 
 // Nettoyage automatique des sessions expirées (toutes les heures)
 setInterval(cleanupExpiredSessions, 60 * 60 * 1000);
