@@ -1,6 +1,8 @@
 // Configuration de l'API backend admin
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001/api';
 
+import type { Utilisateur, UserRole } from '../types/database';
+
 // Types pour les réponses API
 export interface ApiResponse<T> {
   success: boolean;
@@ -95,20 +97,72 @@ async function apiRequest<T>(
   }
 }
 
-// API d'authentification
-export const authApi = {
-  login: async (credentials: LoginCredentials): Promise<ApiResponse<User>> => {
-    return apiRequest<User>('/auth/login', {
-      method: 'POST',
-      body: JSON.stringify(credentials),
-    });
+// API d'authentification PostgreSQL
+export const postgresAuthApi = {
+  authenticateUser: async (email: string, password: string): Promise<{ user: Utilisateur | null; error: string | null }> => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      return { user: data.user, error: null };
+    } catch (error) {
+      console.error('Erreur d\'authentification:', error);
+      return { user: null, error: 'Email ou mot de passe incorrect' };
+    }
   },
 
-  register: async (userData: RegisterData): Promise<ApiResponse<User>> => {
-    return apiRequest<User>('/auth/register', {
-      method: 'POST',
-      body: JSON.stringify(userData),
-    });
+  getUserById: async (id: number): Promise<Utilisateur | null> => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/users/${id}`);
+      if (!response.ok) return null;
+      return await response.json();
+    } catch (error) {
+      console.error('Erreur lors de la récupération de l\'utilisateur:', error);
+      return null;
+    }
+  },
+
+  getUserByEmail: async (email: string): Promise<Utilisateur | null> => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/users/email/${encodeURIComponent(email)}`);
+      if (!response.ok) return null;
+      return await response.json();
+    } catch (error) {
+      console.error('Erreur lors de la récupération de l\'utilisateur:', error);
+      return null;
+    }
+  },
+
+  createUser: async (email: string, password: string, role: UserRole = 'utilisateur'): Promise<{ user: Utilisateur | null; error: string | null }> => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/register`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password, role }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      return { user: data.user, error: null };
+    } catch (error) {
+      console.error('Erreur lors de la création de l\'utilisateur:', error);
+      return { user: null, error: 'Erreur lors de la création du compte' };
+    }
   },
 };
 
@@ -193,7 +247,7 @@ export const healthApi = {
 };
 
 export default {
-  auth: authApi,
+  auth: postgresAuthApi,
   reports: reportsApi,
   users: usersApi,
   stats: statsApi,

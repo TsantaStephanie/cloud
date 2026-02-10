@@ -1,199 +1,100 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { User } from '@supabase/supabase-js';
-import { supabase } from '../lib/supabase';
-import type { UserRole } from '../types/database';
-
-interface Profile {
-  id: string;
-  email: string;
-  full_name: string;
-  role: UserRole;
-  phone: string | null;
-}
+import { postgresAuthApi } from '../lib/api';
+import type { Utilisateur } from '../types/database';
 
 interface AuthContextType {
-  user: User | null;
-  profile: Profile | null;
+  user: Utilisateur | null;
+  profile: Utilisateur | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
-  signUp: (email: string, password: string, fullName: string) => Promise<{ error: Error | null }>;
+  signUp: (email: string, password: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
-  updateProfile: (data: Partial<Profile>) => Promise<{ error: Error | null }>;
+  updateProfile: (data: Partial<Utilisateur>) => Promise<{ error: Error | null }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [profile, setProfile] = useState<Profile | null>(null);
+  const [user, setUser] = useState<Utilisateur | null>(null);
+  const [profile, setProfile] = useState<Utilisateur | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        fetchProfile(session.user.id);
-      } else {
-        setLoading(false);
+    // Vérifier s'il y a un utilisateur stocké dans localStorage
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      try {
+        const userData = JSON.parse(storedUser);
+        setUser(userData);
+        setProfile(userData);
+      } catch (error) {
+        console.error('Erreur lors de la lecture de l\'utilisateur stocké:', error);
       }
-    });
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((async () => {
-      (async () => {
-        const { data: { session } } = await supabase.auth.getSession();
-        setUser(session?.user ?? null);
-        if (session?.user) {
-          await fetchProfile(session.user.id);
-        } else {
-          setProfile(null);
-        }
-        setLoading(false);
-      })();
-    }) as any);
-
-    return () => subscription.unsubscribe();
+    }
+    setLoading(false);
   }, []);
 
-  const fetchProfile = async (userId: string) => {
-    try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
-        .maybeSingle();
 
-      if (error) throw error;
-      setProfile(data);
+  const signIn = async (email: string, password: string) => {
+    try {
+      setLoading(true);
+      const { user: authenticatedUser, error } = await postgresAuthApi.authenticateUser(email, password);
+
+      if (error) {
+        return { error: new Error(error) };
+      }
+
+      if (authenticatedUser) {
+        setUser(authenticatedUser);
+        setProfile(authenticatedUser);
+        localStorage.setItem('user', JSON.stringify(authenticatedUser));
+      }
+
+      return { error: null };
     } catch (error) {
-      console.error('Error fetching profile:', error);
+      return { error: error as Error };
     } finally {
       setLoading(false);
     }
   };
 
-  const signIn = async (email: string, password: string) => {
+
+  const signUp = async (email: string, password: string) => {
     try {
-      const { data: loginAttempt } = await supabase
-        .from('login_attempts')
-        .select('*')
-        .eq('email', email)
-        .maybeSingle();
-
-      if (loginAttempt?.is_blocked && loginAttempt.blocked_until) {
-        const blockedUntil = new Date(loginAttempt.blocked_until);
-        if (blockedUntil > new Date()) {
-          return { error: new Error('Account is temporarily blocked. Please try again later.') };
-        }
-      }
-
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+      setLoading(true);
+      const { user: newUser, error } = await postgresAuthApi.createUser(email, password, 'utilisateur');
 
       if (error) {
-        await updateLoginAttempt(email, true);
-        return { error };
+        return { error: new Error(error) };
       }
 
-      await updateLoginAttempt(email, false);
-
-      if (data.user) {
-        await fetchProfile(data.user.id);
-      }
-
-      return { error: null };
-    } catch (error) {
-      return { error: error as Error };
-    }
-  };
-
-  const updateLoginAttempt = async (email: string, failed: boolean) => {
-    const { data: attempt } = await supabase
-      .from('login_attempts')
-      .select('*')
-      .eq('email', email)
-      .maybeSingle();
-
-    if (failed) {
-      const newCount = (attempt?.attempt_count || 0) + 1;
-      const isBlocked = newCount >= 5;
-      const blockedUntil = isBlocked ? new Date(Date.now() + 15 * 60 * 1000).toISOString() : null;
-
-      if (attempt) {
-        await supabase
-          .from('login_attempts')
-          .update({
-            attempt_count: newCount,
-            is_blocked: isBlocked,
-            blocked_until: blockedUntil,
-            last_attempt_at: new Date().toISOString(),
-          })
-          .eq('email', email);
-      } else {
-        await supabase.from('login_attempts').insert({
-          email,
-          attempt_count: newCount,
-          is_blocked: isBlocked,
-          blocked_until: blockedUntil,
-        });
-      }
-    } else {
-      if (attempt) {
-        await supabase
-          .from('login_attempts')
-          .update({
-            attempt_count: 0,
-            is_blocked: false,
-            blocked_until: null,
-          })
-          .eq('email', email);
-      }
-    }
-  };
-
-  const signUp = async (email: string, password: string, fullName: string) => {
-    try {
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            full_name: fullName,
-          },
-        },
-      });
-
-      if (error) return { error };
-
-      if (data.user) {
-        await fetchProfile(data.user.id);
+      if (newUser) {
+        setUser(newUser);
+        setProfile(newUser);
+        localStorage.setItem('user', JSON.stringify(newUser));
       }
 
       return { error: null };
     } catch (error) {
       return { error: error as Error };
+    } finally {
+      setLoading(false);
     }
   };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
     setUser(null);
     setProfile(null);
+    localStorage.removeItem('user');
   };
 
-  const updateProfile = async (data: Partial<Profile>) => {
+  const updateProfile = async (data: Partial<Utilisateur>) => {
     try {
       if (!user) return { error: new Error('No user logged in') };
 
-      const { error } = await supabase
-        .from('profiles')
-        .update(data)
-        .eq('id', user.id);
-
-      if (error) return { error };
-
-      await fetchProfile(user.id);
+      // Pour l'instant, nous ne supportons pas la mise à jour du profil
+      // Cela nécessiterait une implémentation dans PostgresAuth
+      console.log('Mise à jour du profil non implémentée:', data);
       return { error: null };
     } catch (error) {
       return { error: error as Error };

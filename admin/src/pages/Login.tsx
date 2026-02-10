@@ -8,7 +8,7 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { signIn, profile } = useAuth();
+  const { signIn } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -22,12 +22,8 @@ export default function Login() {
       setError(error.message);
       setLoading(false);
     } else {
-      // Redirection basée sur le rôle de l'utilisateur
-      if (profile?.role === 'admin') {
-        navigate('/admin');
-      } else {
-        navigate('/dashboard');
-      }
+      // Redirection vers /admin pour tous les utilisateurs authentifiés
+      navigate('/admin');
     }
   };
 

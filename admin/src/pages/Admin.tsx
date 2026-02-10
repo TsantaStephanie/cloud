@@ -33,7 +33,7 @@ const Admin: React.FC = () => {
     email: '',
     password: '',
     fullName: '',
-    role: 'user',
+    role: 'utilisateur',
     phone: ''
   });
 
@@ -108,7 +108,7 @@ const Admin: React.FC = () => {
           email: '',
           password: '',
           fullName: '',
-          role: 'user',
+          role: 'utilisateur',
           phone: ''
         });
       }
@@ -420,9 +420,7 @@ const Admin: React.FC = () => {
                   onChange={(e) => setNewUser({...newUser, role: e.target.value as UserRole})}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
-                  <option value="visitor">Visiteur</option>
-                  <option value="user">Utilisateur</option>
-                  <option value="manager">Manager</option>
+                  <option value="utilisateur">Utilisateur</option>
                   <option value="admin">Admin</option>
                 </select>
               </div>

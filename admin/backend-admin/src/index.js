@@ -55,7 +55,7 @@ app.post('/api/auth/login', asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
   const result = await pool.query(
-    'SELECT id, email, password_hash, full_name, role, phone FROM profiles WHERE email = $1',
+    'SELECT email, mot_de_passe_hash, role FROM utilisateurs WHERE email = $1',
     [email]
   );
 
@@ -64,13 +64,13 @@ app.post('/api/auth/login', asyncHandler(async (req, res) => {
   }
 
   const user = result.rows[0];
-  const isValidPassword = await bcrypt.compare(password, user.password_hash);
+  const isValidPassword = password === user.mot_de_passe_hash;
 
   if (!isValidPassword) {
     return res.status(401).json({ success: false, message: 'Identifiants invalides' });
   }
 
-  const { password_hash, ...userWithoutPassword } = user;
+  const { mot_de_passe_hash, ...userWithoutPassword } = user;
   res.json({
     success: true,
     user: userWithoutPassword,
@@ -82,23 +82,25 @@ app.post('/api/auth/register', asyncHandler(async (req, res) => {
   const { email, password, full_name, role = 'user', phone } = req.body;
 
   // Vérifier si l'utilisateur existe déjà
-  const existingUser = await pool.query('SELECT id FROM profiles WHERE email = $1', [email]);
+  const existingUser = await pool.query('SELECT id FROM utilisateurs WHERE email = $1', [email]);
   if (existingUser.rows.length > 0) {
     return res.status(400).json({ success: false, message: 'Cet email est déjà utilisé' });
   }
 
   // Hasher le mot de passe
-  const passwordHash = await bcrypt.hash(password, 12);
+  const passwordHash = password; // Pas de hashage pour l'instant
 
   // Insérer le nouvel utilisateur
   const result = await pool.query(
-    'INSERT INTO profiles (email, password_hash, full_name, role, phone) VALUES ($1, $2, $3, $4, $5) RETURNING id, email, full_name, role, phone, created_at',
-    [email, passwordHash, full_name, role, phone]
+    'INSERT INTO utilisateurs (email, mot_de_passe_hash, role) VALUES ($1, $2, $3) RETURNING id, email, mot_de_passe_hash, role',
+    [email, passwordHash, role]
   );
+
+  const { mot_de_passe_hash, ...userWithoutPassword } = result.rows[0];
 
   res.json({
     success: true,
-    user: result.rows[0],
+    user: userWithoutPassword,
     message: 'Inscription réussie'
   });
 }));

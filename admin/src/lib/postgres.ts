@@ -1,4 +1,5 @@
 import { Pool, PoolClient } from 'pg';
+import type { Utilisateur, UserRole } from '../types/database';
 
 // Configuration de la connexion PostgreSQL
 const poolConfig = {
@@ -42,6 +43,69 @@ export async function query(text: string, params?: any[]): Promise<any> {
 // Helper function to get a single client from the pool
 export async function getClient(): Promise<PoolClient> {
   return await pool.connect();
+}
+
+// Authentification functions
+export class PostgresAuth {
+  static async authenticateUser(email: string, password: string): Promise<{ user: Utilisateur | null; error: string | null }> {
+    try {
+      const queryText = 'SELECT * FROM utilisateurs WHERE email = $1';
+      const result = await query(queryText, [email]);
+      
+      if (result.rows.length === 0) {
+        return { user: null, error: 'Email ou mot de passe incorrect' };
+      }
+
+      const user = result.rows[0] as Utilisateur;
+      
+      // Vérification simple du mot de passe (à améliorer avec bcrypt en production)
+      if (user.mot_de_passe_hash !== password) {
+        return { user: null, error: 'Email ou mot de passe incorrect' };
+      }
+
+      return { user, error: null };
+    } catch (error) {
+      console.error('Erreur d\'authentification:', error);
+      return { user: null, error: 'Erreur de connexion à la base de données' };
+    }
+  }
+
+  static async getUserById(id: number): Promise<Utilisateur | null> {
+    try {
+      const queryText = 'SELECT * FROM utilisateurs WHERE id = $1';
+      const result = await query(queryText, [id]);
+      return result.rows[0] || null;
+    } catch (error) {
+      console.error('Erreur lors de la récupération de l\'utilisateur:', error);
+      return null;
+    }
+  }
+
+  static async getUserByEmail(email: string): Promise<Utilisateur | null> {
+    try {
+      const queryText = 'SELECT * FROM utilisateurs WHERE email = $1';
+      const result = await query(queryText, [email]);
+      return result.rows[0] || null;
+    } catch (error) {
+      console.error('Erreur lors de la récupération de l\'utilisateur:', error);
+      return null;
+    }
+  }
+
+  static async createUser(email: string, password: string, role: UserRole = 'utilisateur'): Promise<{ user: Utilisateur | null; error: string | null }> {
+    try {
+      const queryText = `
+        INSERT INTO utilisateurs (email, mot_de_passe_hash, role) 
+        VALUES ($1, $2, $3) 
+        RETURNING *
+      `;
+      const result = await query(queryText, [email, password, role]);
+      return { user: result.rows[0], error: null };
+    } catch (error) {
+      console.error('Erreur lors de la création de l\'utilisateur:', error);
+      return { user: null, error: 'Erreur lors de la création du compte' };
+    }
+  }
 }
 
 // Export the pool for direct access if needed

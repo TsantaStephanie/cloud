@@ -13,6 +13,7 @@ CREATE TABLE routes_endommagees (
     latitude DECIMAL(10, 8) NOT NULL,
     longitude DECIMAL(11, 8) NOT NULL,
     gravite VARCHAR(50) CHECK (gravite IN ('faible', 'moyenne', 'elevee', 'critique')),
+    imageUrl TEXT,
     description TEXT,
     statut VARCHAR(50) CHECK (statut IN ('nouveau', 'verifie', 'en_cours', 'termine')) DEFAULT 'nouveau',
     longueur_km DECIMAL(8, 2) DEFAULT 0.00,
@@ -28,3 +29,7 @@ CREATE TABLE routes_endommagees (
 CREATE INDEX idx_routes_statut ON routes_endommagees(statut);
 CREATE INDEX idx_routes_gravite ON routes_endommagees(gravite);
 CREATE INDEX idx_routes_utilisateur ON routes_endommagees(utilisateur_id);
+
+
+-- créer l'utilisateur admin
+INSERT INTO utilisateurs (email, mot_de_passe_hash, role) VALUES ('admin@example.com', 'admin', 'admin');
