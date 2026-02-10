@@ -141,15 +141,11 @@ export function validateCreateUserData(userData: CreateUserData): { isValid: boo
     errors.push('Email invalide');
   }
 
-  if (!userData.password || userData.password.length < 6) {
-    errors.push('Le mot de passe doit contenir au moins 6 caractères');
-  }
-
   if (!userData.fullName || userData.fullName.trim().length < 2) {
     errors.push('Le nom complet doit contenir au moins 2 caractères');
   }
 
-  if (!userData.role || !['visitor', 'user', 'manager', 'admin'].includes(userData.role)) {
+  if (!userData.role || !['utilisateur', 'admin'].includes(userData.role)) {
     errors.push('Rôle invalide');
   }
 
