@@ -6,6 +6,8 @@ interface AuthContextType {
   user: Utilisateur | null;
   profile: Utilisateur | null;
   loading: boolean;
+  token: string | null;
+  sessionToken: string | null;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signUp: (email: string, password: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
@@ -17,16 +19,23 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<Utilisateur | null>(null);
   const [profile, setProfile] = useState<Utilisateur | null>(null);
+  const [token, setToken] = useState<string | null>(null);
+  const [sessionToken, setSessionToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Vérifier s'il y a un utilisateur stocké dans localStorage
+    // Vérifier s'il y a un utilisateur et token stockés dans localStorage
     const storedUser = localStorage.getItem('user');
-    if (storedUser) {
+    const storedToken = localStorage.getItem('token');
+    const storedSessionToken = localStorage.getItem('sessionToken');
+    
+    if (storedUser && storedToken) {
       try {
         const userData = JSON.parse(storedUser);
         setUser(userData);
         setProfile(userData);
+        setToken(storedToken);
+        setSessionToken(storedSessionToken);
       } catch (error) {
         console.error('Erreur lors de la lecture de l\'utilisateur stocké:', error);
       }
@@ -38,7 +47,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signIn = async (email: string, password: string) => {
     try {
       setLoading(true);
-      const { user: authenticatedUser, error } = await postgresAuthApi.authenticateUser(email, password);
+      const { user: authenticatedUser, token, sessionToken, error } = await postgresAuthApi.authenticateUser(email, password);
 
       if (error) {
         return { error: new Error(error) };
@@ -47,7 +56,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (authenticatedUser) {
         setUser(authenticatedUser);
         setProfile(authenticatedUser);
+        setToken(token || null);
+        setSessionToken(sessionToken || null);
         localStorage.setItem('user', JSON.stringify(authenticatedUser));
+        localStorage.setItem('token', token || '');
+        localStorage.setItem('sessionToken', sessionToken || '');
       }
 
       return { error: null };
@@ -105,6 +118,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     user,
     profile,
     loading,
+    token,
+    sessionToken,
     signIn,
     signUp,
     signOut,

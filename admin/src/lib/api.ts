@@ -99,7 +99,7 @@ async function apiRequest<T>(
 
 // API d'authentification PostgreSQL
 export const postgresAuthApi = {
-  authenticateUser: async (email: string, password: string): Promise<{ user: Utilisateur | null; error: string | null }> => {
+  authenticateUser: async (email: string, password: string): Promise<{ user: Utilisateur | null; token?: string; sessionToken?: string; error: string | null }> => {
     try {
       const response = await fetch(`${API_BASE_URL}/auth/login`, {
         method: 'POST',
@@ -114,7 +114,12 @@ export const postgresAuthApi = {
       }
 
       const data = await response.json();
-      return { user: data.user, error: null };
+      return { 
+        user: data.user, 
+        token: data.token,
+        sessionToken: data.sessionToken,
+        error: null 
+      };
     } catch (error) {
       console.error('Erreur d\'authentification:', error);
       return { user: null, error: 'Email ou mot de passe incorrect' };
