@@ -1,0 +1,7 @@
+{
+  "name": "road-app",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "vue"
+}
