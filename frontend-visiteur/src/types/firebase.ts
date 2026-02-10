@@ -18,6 +18,8 @@ export interface RouteEndommagee {
   surfaceM2?: number;
   budget?: number;
   entreprise?: string;
+  imageUrl?: string;  // Photo principale
+  images?: string[];  // Tableau de photos additionnelles
   dateCreation: Date;
   dateMiseAJour: Date;
 }

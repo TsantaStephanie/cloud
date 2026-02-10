@@ -248,6 +248,8 @@ export default function Home() {
               surface_m2: route.surfaceM2,
               budget: route.budget,
               entreprise: route.entreprise,
+              imageUrl: route.imageUrl, // Ajout de l'image principale
+              images: route.images,     // Ajout du tableau d'images
               created_at: route.dateCreation.toISOString(),
               updated_at: route.dateMiseAJour.toISOString()
             }))} />
