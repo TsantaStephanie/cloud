@@ -1,9 +1,11 @@
-import { supabase } from './supabase';
 import { collections, Utilisateur, dateToTimestamp } from './firebase';
 import { addDoc } from 'firebase/firestore';
-import bcrypt from 'bcryptjs';
+//import bcrypt from 'bcryptjs';
 import type { UserRole } from '../types/database';
 import { Timestamp } from 'firebase/firestore';
+
+// Configuration de l'API backend admin
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001/api';
 
 export interface CreateUserData {
   email: string;
@@ -21,50 +23,41 @@ export interface CreateUserResult {
   firebaseError?: string;
 }
 
-// Créer un utilisateur dans PostgreSQL (via Supabase)
+// Créer un utilisateur dans PostgreSQL (via notre backend)
 export async function createUserInPostgres(userData: CreateUserData): Promise<{ success: boolean; userId?: string; error?: string }> {
   try {
-    // Créer d'abord l'utilisateur dans Supabase Auth
-    const { data: authData, error: authError } = await supabase.auth.admin.createUser({
-      email: userData.email,
-      password: userData.password,
-      email_confirm: true,
-      user_metadata: {
-        full_name: userData.fullName,
-        role: userData.role,
-        phone: userData.phone || null
-      }
+    const response = await fetch(`${API_BASE_URL}/auth/register`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email: userData.email,
+        password: userData.password,
+        role: userData.role
+      })
     });
 
-    if (authError) {
-      throw new Error(`Supabase Auth error: ${authError.message}`);
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(`Backend error: ${errorData.message || 'Unknown error'}`);
     }
 
-    if (!authData.user) {
-      throw new Error('Failed to create user in Supabase Auth');
+    const data = await response.json();
+    
+    if (!data.success) {
+      throw new Error(`Backend error: ${data.message || 'Unknown error'}`);
     }
 
-    // Créer le profil dans la table profiles
-    const { error: profileError } = await supabase
-      .from('profiles')
-      .insert({
-        id: authData.user.id,
-        email: userData.email,
-        full_name: userData.fullName,
-        role: userData.role,
-        phone: userData.phone || null
-      } as any);
-
-    if (profileError) {
-      throw new Error(`Profile creation error: ${profileError.message}`);
-    }
-
-    return { success: true, userId: authData.user.id };
+    return {
+      success: true,
+      userId: data.user?.id?.toString()
+    };
   } catch (error) {
     console.error('PostgreSQL user creation error:', error);
-    return { 
-      success: false, 
-      error: error instanceof Error ? error.message : 'Unknown PostgreSQL error' 
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error'
     };
   }
 }
@@ -73,7 +66,7 @@ export async function createUserInPostgres(userData: CreateUserData): Promise<{ 
 export async function createUserInFirebase(userData: CreateUserData): Promise<{ success: boolean; userId?: string; error?: string }> {
   try {
     // Hasher le mot de passe pour Firebase
-    const hashedPassword = await bcrypt.hash(userData.password, 10);
+    const hashedPassword = userData.password;
 
     // Créer l'objet utilisateur pour Firebase
     const firebaseUser: Omit<Utilisateur, 'id'> = {
