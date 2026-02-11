@@ -82,16 +82,42 @@
                 <ion-icon :icon="shieldCheckmarkOutline" />
                 <span>Admin</span>
               </button>
-              <button @click="fillCredentials('user1@route.mg', 'user1')" class="demo-btn">
+              <button @click="fillCredentials('user1@route.mg', 'User456')" class="demo-btn">
                 <ion-icon :icon="personCircleOutline" />
                 <span>Utilisateur</span>
               </button>
+            </div>
+          </div>
+
+          <!-- Identifiants de connexion -->
+          <div class="credentials-section">
+            <p class="credentials-title">Identifiants de connexion</p>
+            <div class="credentials-list">
+              
+              
+              <div class="credential-item">
+                <div class="credential-role">
+                  <ion-icon :icon="personCircleOutline" />
+                  <span>Utilisateur</span>
+                </div>
+                <div class="credential-details">
+                  <div class="credential-field">
+                    <span class="field-label">Email:</span>
+                    <span class="field-value">user1@route.mg</span>
+                  </div>
+                  <div class="credential-field">
+                    <span class="field-label">Mot de passe:</span>
+                    <span class="field-value">User456</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
         <!-- Footer -->
         <div class="login-footer">
+          <p> 2026 Antananarivo Road Management</p>
           <p>© 2026 Antananarivo Road Management</p>
         </div>
       </div>
